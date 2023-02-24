@@ -5,7 +5,7 @@ import moment from 'moment'
 
 function CreateProject() {
     const [projectName, setProjectName] = useState("")
-    const [dueDate, setDueDate] = useState()
+    const [dueDate, setDueDate] = useState(null)
     const [projects, setProjects] = useState([])
     const [isUnique, setIsUnique] = useState(true)
 
@@ -24,27 +24,37 @@ function CreateProject() {
     const handleSubmit = (e) => {
         e.preventDefault()
 
-        let isUniqueTemp = isUnique
-        setIsUnique(true)
-        for(const eachProject of projects){
-            const dbDate = moment(eachProject.dueDate).format("MM-DD-YYYY")
-            console.log('==========db vars')
-            console.log(eachProject.project)
-            console.log(eachProject.dueDate)
-            console.log(dbDate)
-            console.log('state')
-            console.log(projectName)
-            console.log(dueDate)
+        let tempErrorList = []
 
-            
+        let isUniqueTemp = isUnique
+        let isValidEntry = true
+        setIsUnique(true)
+        setErrorList([])
+        for(const eachProject of projects){
+            const dbDate = moment(eachProject.dueDate).format("MM-DD-YYYY")            
             if(eachProject.project == projectName && dbDate == dueDate){
                 isUniqueTemp = false
             }
         }
+
+
+        if (projectName.length < 1){
+            tempErrorList.push("Project name requiredsssssss")
+            isValidEntry = false
+        } else if(projectName.length < 3){
+            tempErrorList.push("Project name must be at least 3 characterssssss")
+            isValidEntry = false
+        } 
+
+        if(dueDate == null){
+            tempErrorList.push("Due Date is requiredssssss")
+            isValidEntry = false
+        }
+
+
         setIsUnique(isUniqueTemp)
-        console.log("+++++++++++++++++")
-        console.log(isUnique)
-        if (isUniqueTemp){
+        setErrorList(tempErrorList)
+        if (isUniqueTemp && isValidEntry){
             axios.post(`http://localhost:8000/api/project`, {
                 project: projectName,
                 dueDate: dueDate
